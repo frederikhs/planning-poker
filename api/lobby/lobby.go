@@ -2,16 +2,9 @@ package lobby
 
 import (
 	"fmt"
-	"github.com/gofiber/websocket/v2"
+	"log"
 	"sync"
 )
-
-type Client struct {
-	Id       string `json:"id"`
-	Username string `json:"username"`
-	Value    string `json:"value"`
-	Conn     *websocket.Conn
-}
 
 type Lobby struct {
 	Name    string
@@ -33,7 +26,7 @@ func (l *Lobby) GetClients() []*Client {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 
-	var clients []*Client
+	clients := []*Client{}
 
 	for client, _ := range l.Clients {
 		clients = append(clients, client)
@@ -42,19 +35,57 @@ func (l *Lobby) GetClients() []*Client {
 	return clients
 }
 
+func (l *Lobby) AddClient(c *Client) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	l.Clients[c] = true
+}
+
+func (l *Lobby) GetClientById(id string) *Client {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	for client, _ := range l.Clients {
+		if client.Id == id {
+			return client
+		}
+	}
+
+	return nil
+}
+
+func (l *Lobby) RemoveClient(c *Client) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	log.Printf("removing client " + c.Id)
+
+	err := c.Conn.Close()
+	if err != nil {
+		log.Println(err)
+	}
+	delete(l.Clients, c)
+}
+
+func (l *Lobby) WriteAll(i interface{}) error {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	for client, _ := range l.Clients {
+		err := client.Conn.WriteJSON(i)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func NewLobby(name string) *Lobby {
 	return &Lobby{
 		Name:    name,
 		Clients: make(map[*Client]bool),
 		lock:    &sync.Mutex{},
-	}
-}
-
-func NewClient(conn *websocket.Conn, id string) *Client {
-	return &Client{
-		Id:       id,
-		Username: "username",
-		Value:    "5",
-		Conn:     conn,
 	}
 }

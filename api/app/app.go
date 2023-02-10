@@ -1,10 +1,11 @@
 package app
 
 import (
-	"encoding/json"
+	"github.com/frederikhs/planning-poker/event"
 	"github.com/frederikhs/planning-poker/lobby"
 	"github.com/frederikhs/planning-poker/state"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/websocket/v2"
 	"github.com/google/uuid"
 	"log"
@@ -14,8 +15,10 @@ func Create() *fiber.App {
 	s := state.New()
 
 	app := fiber.New()
-
-	l := lobby.NewLobby("test")
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost",
+		AllowCredentials: true,
+	}))
 
 	app.Get("/register", func(c *fiber.Ctx) error {
 		clientId := s.GetSessionUserId(c.Cookies("session"))
@@ -32,6 +35,8 @@ func Create() *fiber.App {
 				Path: "/",
 			})
 		}
+
+		c.Status(fiber.StatusCreated)
 
 		return c.JSON(struct {
 			ClientId string `json:"client_id"`
@@ -60,50 +65,53 @@ func Create() *fiber.App {
 			return
 		}
 
+		l := s.GetOrCreateLobby("test")
+
 		clientId := *v
 
-		client := lobby.NewClient(c, clientId)
-		l.Clients[client] = true
+		//existingLobby := s.GetClientLobby(clientId)
+		//if existingLobby != nil {
+		//	existingLobby
+		//}
 
-		l.PrintClients()
+		s.RemoveFromAllLobbies(clientId)
 
-		b, err := json.Marshal(struct {
-			ClientId string          `json:"client_id"`
-			Clients  []*lobby.Client `json:"clients"`
-		}{
-			ClientId: clientId,
-			Clients:  l.GetClients(),
+		client := lobby.NewClient(c, clientId, "username", "5")
+
+		_ = c.WriteJSON(event.WelcomeEvent{
+			Event:   event.Event{EventType: event.WelcomeEventType},
+			Client:  client,
+			Clients: l.GetClients(),
 		})
-		if err != nil {
-			return
-		}
 
-		err = c.WriteMessage(1, b)
-		if err != nil {
-			return
-		}
+		// notify other clients that this one has joined
+		_ = l.WriteAll(event.JoinEvent{
+			Event:  event.Event{EventType: event.JoinEventType},
+			Client: client,
+		})
+
+		l.AddClient(client)
 
 		var (
-			mt  int
 			msg []byte
-			//err error
+			err error
 		)
+
 		for {
-			if mt, msg, err = c.ReadMessage(); err != nil {
+			if _, msg, err = c.ReadMessage(); err != nil {
 				log.Println("read:", err)
 				break
 			}
 
 			log.Printf("recv: %s", msg)
-
-			if err = c.WriteMessage(mt, msg); err != nil {
-				log.Println("write:", err)
-				break
-			}
 		}
 
-		delete(l.Clients, client)
+		l.RemoveClient(client)
 
+		_ = l.WriteAll(event.LeaveEvent{
+			Event:  event.Event{EventType: event.LeaveEventType},
+			Client: client,
+		})
 	}))
 
 	return app
