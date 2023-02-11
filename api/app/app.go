@@ -1,118 +1,74 @@
 package app
 
 import (
-	"github.com/frederikhs/planning-poker/event"
-	"github.com/frederikhs/planning-poker/lobby"
-	"github.com/frederikhs/planning-poker/state"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/websocket/v2"
+	"encoding/json"
+	"github.com/frederikhs/planning-poker/hub"
 	"github.com/google/uuid"
-	"log"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
+	"net/http"
 )
 
-func Create() *fiber.App {
-	s := state.New()
+func NewSessionCookie(w http.ResponseWriter, s *hub.State) *string {
+	sId := uuid.New().String()
+	cId := uuid.New().String()
+	s.SetSession(sId, cId, "new-user", "")
 
-	app := fiber.New()
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost",
-		AllowCredentials: true,
-	}))
+	http.SetCookie(w, &http.Cookie{
+		Name:  "session",
+		Value: sId,
+		Path:  "/",
+	})
 
-	app.Get("/register", func(c *fiber.Ctx) error {
-		clientId := s.GetSessionUserId(c.Cookies("session"))
-		if clientId == nil {
-			sId := uuid.New().String()
-			cId := uuid.New().String()
-			s.SetSession(sId, cId)
-			clientId = &cId
-			c.Cookie(&fiber.Cookie{
-				Name:  "session",
-				Value: sId,
-				//HTTPOnly: true,
-				//SameSite: http.SameSiteLaxMode,
-				Path: "/",
-			})
+	return &cId
+}
+
+func Create() http.Handler {
+	s := hub.NewState()
+	r := mux.NewRouter()
+
+	r.HandleFunc("/register", func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("session")
+
+		var clientId *string
+
+		if err != nil {
+			clientId = NewSessionCookie(w, s)
+		} else {
+			sessionId := cookie.Value
+			session := s.GetSessionClientId(sessionId)
+
+			// if this session id does not match a client, make new session
+			if session == nil {
+				clientId = NewSessionCookie(w, s)
+			} else {
+				clientId = &session.ClientId
+			}
 		}
 
-		c.Status(fiber.StatusCreated)
-
-		return c.JSON(struct {
+		b, err := json.Marshal(struct {
 			ClientId string `json:"client_id"`
 		}{
 			ClientId: *clientId,
 		})
-	})
 
-	app.Use("/ws", func(c *fiber.Ctx) error {
-		if !websocket.IsWebSocketUpgrade(c) {
-			return fiber.ErrUpgradeRequired
-		}
-
-		clientId := s.GetSessionUserId(c.Cookies("session"))
-		if clientId == nil {
-			return fiber.ErrMethodNotAllowed
-		}
-
-		return c.Next()
-	})
-
-	app.Get("/ws/:id", websocket.New(func(c *websocket.Conn) {
-		v := s.GetSessionUserId(c.Cookies("session"))
-		if v == nil {
-			c.Close()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		l := s.GetOrCreateLobby("test")
+		w.WriteHeader(http.StatusCreated)
+		w.Write(b)
+	})
 
-		clientId := *v
+	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		hub.ServeWs(s, w, r)
+	})
 
-		//existingLobby := s.GetClientLobby(clientId)
-		//if existingLobby != nil {
-		//	existingLobby
-		//}
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost"},
+		AllowCredentials: true,
+	})
 
-		s.RemoveFromAllLobbies(clientId)
-
-		client := lobby.NewClient(c, clientId, "username", "5")
-
-		_ = c.WriteJSON(event.WelcomeEvent{
-			Event:   event.Event{EventType: event.WelcomeEventType},
-			Client:  client,
-			Clients: l.GetClients(),
-		})
-
-		// notify other clients that this one has joined
-		_ = l.WriteAll(event.JoinEvent{
-			Event:  event.Event{EventType: event.JoinEventType},
-			Client: client,
-		})
-
-		l.AddClient(client)
-
-		var (
-			msg []byte
-			err error
-		)
-
-		for {
-			if _, msg, err = c.ReadMessage(); err != nil {
-				log.Println("read:", err)
-				break
-			}
-
-			log.Printf("recv: %s", msg)
-		}
-
-		l.RemoveClient(client)
-
-		_ = l.WriteAll(event.LeaveEvent{
-			Event:  event.Event{EventType: event.LeaveEventType},
-			Client: client,
-		})
-	}))
-
-	return app
+	return c.Handler(r)
 }

@@ -4,14 +4,15 @@ go 1.20
 
 require (
 	github.com/gofiber/fiber/v2 v2.42.0
-	github.com/gofiber/websocket/v2 v2.1.4
-	github.com/google/uuid v1.3.0
+	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/websocket v1.5.0
+	github.com/rs/cors v1.8.3
 	github.com/spf13/cobra v1.6.1
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/fasthttp/websocket v1.5.1 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

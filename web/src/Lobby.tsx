@@ -3,8 +3,8 @@ import {useEffect, useState} from "react";
 const api_host = process.env.REACT_APP_API_HOST as string
 const ws_api_host = process.env.REACT_APP_WS_API_HOST as string
 
-type Client = {
-    id: string
+type Session = {
+    client_id: string
     username: string
     value: string
 }
@@ -13,7 +13,7 @@ export default function Lobby() {
     const [registered, setRegistered] = useState<boolean>(false);
 
     const [userId, setUserId] = useState<string | null>(null);
-    const [clients, setClients] = useState<Client[]>([]);
+    const [sessions, setSessions] = useState<Session[]>([]);
 
     useEffect(() => {
         fetch(api_host + "/register", {
@@ -35,7 +35,7 @@ export default function Lobby() {
             return
         }
 
-        const websocket = new WebSocket(ws_api_host + "/ws/lobby1");
+        const websocket = new WebSocket(ws_api_host + "/ws");
 
         websocket.onopen = () => {
             console.log('connected');
@@ -43,7 +43,7 @@ export default function Lobby() {
 
         websocket.onclose = () => {
             console.log('got closed');
-            setClients([])
+            setSessions([])
             setUserId("-1")
         }
 
@@ -55,18 +55,16 @@ export default function Lobby() {
         websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
             console.log(data);
-            // setUserId(data.client_id)
-
             switch (data.event_type) {
                 case "welcome_event":
-                    setClients(data.clients)
-                    setUserId(data.client.id)
+                    setSessions(data.sessions)
+                    setUserId(data.session.client_id)
                     break
                 case "join_event":
-                    setClients([...clients, data.client])
+                    setSessions([...sessions, data.session])
                     break
                 case "leave_event":
-                    setClients(clients.filter((c) => c.id !== data.client.id))
+                    setSessions(sessions.filter((c) => c.client_id !== data.session.client_id))
                     break
             }
         }
@@ -83,8 +81,8 @@ export default function Lobby() {
             <br/>
             <h1>users also here:</h1>
             <div>
-                {clients.map((client, index) => {
-                    return <p key={index}>{client.id} {client.value}</p>
+                {sessions.map((client, index) => {
+                    return <p key={index}>{client.client_id} {client.value}</p>
                 })}
             </div>
         </main>

@@ -1,9 +1,8 @@
-package event
+package hub
 
 import (
 	"encoding/json"
 	"errors"
-	"github.com/frederikhs/planning-poker/lobby"
 )
 
 const (
@@ -23,22 +22,36 @@ type Event struct {
 
 type JoinEvent struct {
 	Event
-	Client *lobby.Client `json:"client"`
+	Session *Session `json:"session"`
+}
+
+func NewJoinEvent(session *Session) JoinEvent {
+	return JoinEvent{
+		Event:   Event{EventType: JoinEventType},
+		Session: session,
+	}
 }
 
 type LeaveEvent struct {
 	Event
-	Client *lobby.Client `json:"client"`
+	Session *Session `json:"session"`
+}
+
+func NewLeaveEvent(session *Session) LeaveEvent {
+	return LeaveEvent{
+		Event:   Event{EventType: LeaveEventType},
+		Session: session,
+	}
 }
 
 type ChooseUsernameEvent struct {
 	Event
-	Username string `json:"username"`
+	Username string `json:"Username"`
 }
 
 type UserChangeEvent struct {
 	Event
-	Client *lobby.Client `json:"client"`
+	Client string `json:"client"`
 }
 
 type PickEvent struct {
@@ -48,8 +61,25 @@ type PickEvent struct {
 
 type WelcomeEvent struct {
 	Event
-	Client  *lobby.Client   `json:"client"`
-	Clients []*lobby.Client `json:"clients"`
+	Session  *Session   `json:"session"`
+	Sessions []*Session `json:"sessions"`
+}
+
+func NewWelcomeEvent(session *Session, sessions []*Session) WelcomeEvent {
+	return WelcomeEvent{
+		Event:    Event{EventType: WelcomeEventType},
+		Session:  session,
+		Sessions: sessions,
+	}
+}
+
+func NewWelcomeEventFromHub(hub *Hub, session *Session) WelcomeEvent {
+	sessions := []*Session{}
+	for someClient, _ := range hub.clients {
+		sessions = append(sessions, someClient.Session)
+	}
+
+	return NewWelcomeEvent(session, sessions)
 }
 
 type ToggleVisibilityEvent struct {
@@ -59,7 +89,7 @@ type ToggleVisibilityEvent struct {
 
 type ClearLobbyEvent = Event
 
-type Handler struct {
+type EventHandler struct {
 	ChooseUsernameHandler  func(event ChooseUsernameEvent)
 	JoinEventHandler       func(event JoinEvent)
 	LeaveEventHandler      func(event LeaveEvent)
@@ -68,7 +98,7 @@ type Handler struct {
 	VisibilityEventHandler func(event ToggleVisibilityEvent)
 }
 
-func (eh Handler) Handle(message []byte) error {
+func (eh EventHandler) Handle(message []byte) error {
 	var e Event
 	err := json.Unmarshal(message, &e)
 	if err != nil {
