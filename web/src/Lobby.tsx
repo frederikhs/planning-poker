@@ -81,7 +81,9 @@ export default function Lobby() {
             <br/>
             <h1>users also here:</h1>
             <div>
-                {sessions.map((client, index) => {
+                {sessions
+                    .filter((client) => client.client_id !== userId)
+                    .map((client, index) => {
                     return <p key={index}>{client.client_id} {client.value}</p>
                 })}
             </div>

@@ -1,10 +1,5 @@
 package hub
 
-import (
-	"encoding/json"
-	"log"
-)
-
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
@@ -19,6 +14,8 @@ type Hub struct {
 
 	// Unregister requests from clients.
 	unregister chan *Client
+
+	close chan bool
 }
 
 func NewHub() *Hub {
@@ -27,6 +24,7 @@ func NewHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		close:      make(chan bool),
 	}
 }
 
@@ -40,31 +38,17 @@ func (h *Hub) Run() {
 				delete(h.clients, client)
 				close(client.send)
 			}
-
-			b, err := json.Marshal(NewLeaveEvent(client.Session))
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-			h.emit(b)
-
-			if len(h.clients) == 0 {
-				return
-			}
 		case message := <-h.broadcast:
-			h.emit(message)
-		}
-	}
-}
-
-func (h *Hub) emit(message []byte) {
-	for client := range h.clients {
-		select {
-		case client.send <- message:
-		default:
-			close(client.send)
-			delete(h.clients, client)
+			for client := range h.clients {
+				select {
+				case client.send <- message:
+				default:
+					close(client.send)
+					delete(h.clients, client)
+				}
+			}
+		case <-h.close:
+			return
 		}
 	}
 }

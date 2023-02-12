@@ -63,6 +63,14 @@ func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
 		c.conn.Close()
+
+		b, err := json.Marshal(NewLeaveEvent(c.Session))
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		c.hub.broadcast <- b
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
@@ -140,13 +148,32 @@ func ServeWs(s *State, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hub := s.GetOrCreateHub("test-hub")
+
+	for someClient := range hub.clients {
+		// a client in this hub already exists
+		if someClient.Session.ClientId == session.ClientId {
+			log.Println("client already exists, disconnecting")
+			hub.unregister <- someClient
+
+			for {
+				if _, exists := hub.clients[someClient]; exists {
+					log.Println("client still in this room, waiting for kick")
+					time.Sleep(time.Millisecond * 200)
+					continue
+				}
+
+				log.Println("client successfully kicked, can continue")
+				break
+			}
+		}
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	hub := s.GetOrCreateHub("test-hub")
 
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), Session: session}
 
@@ -158,23 +185,13 @@ func ServeWs(s *State, w http.ResponseWriter, r *http.Request) {
 
 	hub.broadcast <- b
 
-	sessions := []*Session{}
-	for someClient, _ := range client.hub.clients {
-		sessions = append(sessions, someClient.Session)
-	}
-
-	b, err = json.Marshal(WelcomeEvent{
-		Event:    Event{EventType: WelcomeEventType},
-		Session:  client.Session,
-		Sessions: sessions,
-	})
+	b, err = json.Marshal(NewWelcomeEventFromHub(hub, client.Session))
 	if err != nil {
 		log.Println(err)
 		return
 	}
 
 	client.send <- b
-
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
