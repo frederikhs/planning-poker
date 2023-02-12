@@ -12,7 +12,7 @@ import (
 func NewSessionCookie(w http.ResponseWriter, s *hub.State) *string {
 	sId := uuid.New().String()
 	cId := uuid.New().String()
-	s.SetSession(sId, cId, "new-user", "")
+	s.SetSession(sId, cId, "new-user", -1)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session",

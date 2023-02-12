@@ -10,7 +10,7 @@ const (
 	LeaveEventType            = "leave_event"
 	ChooseUsernameEventType   = "choose_username_event"
 	PickEventType             = "pick_event"
-	UserChangeEventType       = "user_change_event"
+	SessionChangeEventType    = "session_change_event"
 	WelcomeEventType          = "welcome_event"
 	ClearLobbyEventType       = "clear_lobby_event"
 	ToggleVisibilityEventType = "toggle_visibility_event"
@@ -49,9 +49,16 @@ type ChooseUsernameEvent struct {
 	Username string `json:"Username"`
 }
 
-type UserChangeEvent struct {
+type SessionChangeEvent struct {
 	Event
-	Client string `json:"client"`
+	Session *Session `json:"session"`
+}
+
+func NewSessionChangeEvent(session *Session) SessionChangeEvent {
+	return SessionChangeEvent{
+		Event:   Event{EventType: SessionChangeEventType},
+		Session: session,
+	}
 }
 
 type PickEvent struct {
@@ -93,12 +100,12 @@ type EventHandler struct {
 	ChooseUsernameHandler  func(event ChooseUsernameEvent)
 	JoinEventHandler       func(event JoinEvent)
 	LeaveEventHandler      func(event LeaveEvent)
-	PickEventHandler       func(event PickEvent)
+	PickEventHandler       func(client *Client, event PickEvent)
 	ClearLobbyEventHandler func(event ClearLobbyEvent)
 	VisibilityEventHandler func(event ToggleVisibilityEvent)
 }
 
-func (eh EventHandler) Handle(message []byte) error {
+func (eh EventHandler) Handle(client *Client, message []byte) error {
 	var e Event
 	err := json.Unmarshal(message, &e)
 	if err != nil {
@@ -106,24 +113,24 @@ func (eh EventHandler) Handle(message []byte) error {
 	}
 
 	switch e.EventType {
-	case JoinEventType:
-		var e JoinEvent
-		err := json.Unmarshal(message, &e)
-		if err != nil {
-			return err
-		}
-
-		eh.JoinEventHandler(e)
-		return nil
-	case LeaveEventType:
-		var e LeaveEvent
-		err := json.Unmarshal(message, &e)
-		if err != nil {
-			return err
-		}
-
-		eh.LeaveEventHandler(e)
-		return nil
+	//case JoinEventType:
+	//	var e JoinEvent
+	//	err := json.Unmarshal(message, &e)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	eh.JoinEventHandler(e)
+	//	return nil
+	//case LeaveEventType:
+	//	var e LeaveEvent
+	//	err := json.Unmarshal(message, &e)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	eh.LeaveEventHandler(e)
+	//	return nil
 	case ChooseUsernameEventType:
 		var e ChooseUsernameEvent
 		err := json.Unmarshal(message, &e)
@@ -140,26 +147,26 @@ func (eh EventHandler) Handle(message []byte) error {
 			return err
 		}
 
-		eh.PickEventHandler(e)
+		eh.PickEventHandler(client, e)
 		return nil
-	case ClearLobbyEventType:
-		var e ClearLobbyEvent
-		err := json.Unmarshal(message, &e)
-		if err != nil {
-			return err
-		}
-
-		eh.ClearLobbyEventHandler(e)
-		return nil
-	case ToggleVisibilityEventType:
-		var e ToggleVisibilityEvent
-		err := json.Unmarshal(message, &e)
-		if err != nil {
-			return err
-		}
-
-		eh.VisibilityEventHandler(e)
-		return nil
+	//case ClearLobbyEventType:
+	//	var e ClearLobbyEvent
+	//	err := json.Unmarshal(message, &e)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	eh.ClearLobbyEventHandler(e)
+	//	return nil
+	//case ToggleVisibilityEventType:
+	//	var e ToggleVisibilityEvent
+	//	err := json.Unmarshal(message, &e)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	eh.VisibilityEventHandler(e)
+	//	return nil
 	default:
 		return errors.New("cannot handle event type:" + e.EventType)
 	}

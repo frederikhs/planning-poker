@@ -5,7 +5,6 @@
 package hub
 
 import (
-	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -83,8 +82,15 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- message
+
+		err = c.hub.eventHandler.Handle(c, message)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		//message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		//c.hub.broadcast <- message
 	}
 }
 
@@ -114,13 +120,6 @@ func (c *Client) writePump() {
 				return
 			}
 			w.Write(message)
-
-			// Add queued chat messages to the current websocket message.
-			//n := len(c.send)
-			//for i := 0; i < n; i++ {
-			//	w.Write(newline)
-			//	w.Write(<-c.send)
-			//}
 
 			if err := w.Close(); err != nil {
 				return

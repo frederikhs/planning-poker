@@ -12,9 +12,10 @@ type State struct {
 }
 
 type Session struct {
-	ClientId string `json:"client_id"`
-	Username string `json:"username"`
-	Value    string `json:"value"`
+	SessionId string `json:"-"`
+	ClientId  string `json:"client_id"`
+	Username  string `json:"username"`
+	Value     int    `json:"value"`
 }
 
 func NewState() *State {
@@ -35,7 +36,8 @@ func (s *State) GetOrCreateHub(name string) *Hub {
 
 	log.Println("creating hub " + name)
 
-	h := NewHub()
+	h := NewHub(s)
+
 	go func() {
 		h.Run()
 
@@ -63,13 +65,21 @@ func (s *State) GetSessionClientId(sessionId string) *Session {
 	return nil
 }
 
-func (s *State) SetSession(sessionId, userId string, username string, value string) {
+func (s *State) SetSession(sessionId, userId string, username string, value int) {
 	s.Lock.Lock()
 	defer s.Lock.Unlock()
 
 	s.Sessions[sessionId] = Session{
-		ClientId: userId,
-		Username: username,
-		Value:    value,
+		SessionId: sessionId,
+		ClientId:  userId,
+		Username:  username,
+		Value:     value,
 	}
+}
+
+func (s *State) UpdateSession(sessionId string, session *Session) {
+	s.Lock.Lock()
+	defer s.Lock.Unlock()
+
+	s.Sessions[sessionId] = *session
 }
