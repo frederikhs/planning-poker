@@ -83,3 +83,7 @@ func (s *State) UpdateSession(sessionId string, session *Session) {
 
 	s.Sessions[sessionId] = *session
 }
+
+func (s *State) UpdateSessionWithoutLock(sessionId string, session *Session) {
+	s.Sessions[sessionId] = *session
+}

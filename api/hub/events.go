@@ -163,15 +163,15 @@ func (eh EventHandler) Handle(client *Client, message []byte) error {
 
 		eh.PickEventHandler(client, e)
 		return nil
-	//case ClearLobbyEventType:
-	//	var e ClearLobbyEvent
-	//	err := json.Unmarshal(message, &e)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	eh.ClearLobbyEventHandler(e)
-	//	return nil
+	case ClearLobbyEventType:
+		var e ClearLobbyEvent
+		err := json.Unmarshal(message, &e)
+		if err != nil {
+			return err
+		}
+
+		eh.ClearLobbyEventHandler(e)
+		return nil
 	case ToggleVisibilityRequestEventType:
 		var e ToggleVisibilityRequestEvent
 		err := json.Unmarshal(message, &e)

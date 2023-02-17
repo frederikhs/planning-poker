@@ -97,5 +97,23 @@ func CreateEventHandler(h *Hub, s *State) *EventHandler {
 
 			h.broadcast <- b
 		},
+		ClearLobbyEventHandler: func(event ClearLobbyEvent) {
+			s.Lock.Lock()
+			for client := range h.clients {
+				client.Session.Value = -1
+				s.UpdateSessionWithoutLock(client.Session.SessionId, client.Session)
+			}
+			s.Lock.Unlock()
+
+			h.valuesVisible = false
+
+			b, err := json.Marshal(event)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			h.broadcast <- b
+		},
 	}
 }

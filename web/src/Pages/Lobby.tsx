@@ -5,6 +5,8 @@ import ValuePicker from "../Components/ValuePicker";
 import {Client} from "../type";
 import ClientList from "../Components/ClientList";
 import ValueDisplay from "../Components/ValueDisplay";
+import {ArchiveBoxXMarkIcon} from "@heroicons/react/24/solid";
+import Clear from "../Components/Clear";
 
 const api_host = process.env.REACT_APP_API_HOST as string
 const ws_api_host = process.env.REACT_APP_WS_API_HOST as string
@@ -89,6 +91,9 @@ export default function Lobby() {
                 case Event.toggle_visibility_event:
                     setValuesVisible(data.visible)
                     break
+                case Event.clear_lobby_event:
+                    clearClientValues()
+                    break
             }
         }
     }
@@ -113,6 +118,19 @@ export default function Lobby() {
         setClients(clients.filter((s) => s.client_id !== session.client_id))
     }
 
+    const clearClientValues = () => {
+        if (thisClient !== null) {
+            thisClient.value = -1
+            setThisClient(thisClient)
+        }
+
+        setValuesVisible(false)
+        setClients(clients.map((c) => {
+            c.value = -1
+            return c
+        }))
+    }
+
     const answerValues = useMemo(() => {
         if (thisClient === null) {
             return [-1]
@@ -132,15 +150,26 @@ export default function Lobby() {
     }
 
     const pick = (value: number) => {
-        setPickedValue(value)
+        if (value === thisClient?.value) {
+            return
+        }
+
         send({
-            event_type: "pick_event",
+            event_type: Event.pick_event,
             value: value,
         })
     }
 
     const toggleVisibility = () => {
-        send({event_type: "toggle_visibility_request_event"})
+        send({
+            event_type: Event.toggle_visibility_request_event
+        })
+    }
+
+    const clearValues = () => {
+        send({
+            event_type: Event.clear_lobby_event
+        })
     }
 
     if (thisClient == null) {
@@ -149,6 +178,8 @@ export default function Lobby() {
 
     return (
         <main>
+            <Clear enable={valuesVisible} clearFn={clearValues}/>
+
             <ValueDisplay values={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
 
             <ClientList clients={clients} thisClient={thisClient} valuesVisible={valuesVisible}/>
