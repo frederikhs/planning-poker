@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/frederikhs/namer"
 	"github.com/frederikhs/planning-poker/hub"
 	"github.com/google/uuid"
@@ -81,6 +82,13 @@ func Create() http.Handler {
 
 		w.WriteHeader(http.StatusCreated)
 		w.Write(b)
+	})
+
+	r.HandleFunc("/lobby/create", func(w http.ResponseWriter, r *http.Request) {
+		name := uuid.New().String()
+		w.WriteHeader(http.StatusCreated)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(fmt.Sprintf("{\"lobby_id\": \"%s\"}", name)))
 	})
 
 	r.HandleFunc("/ws/{lobby_id}", func(w http.ResponseWriter, r *http.Request) {

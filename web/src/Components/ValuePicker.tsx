@@ -10,12 +10,6 @@ export default function ValuePicker(props: { pickFn: (v: number) => void, values
                                    className={`value-button ${value === props.pickedValue ? 'value-button-green' : 'value-button-gray'}`}>{value}</button>
                 })}
             </div>
-
-            {/*<div className="grid sm:flex sm:justify-center grid-rows-1 grid-flow-col gap-4 mt-4">*/}
-            {/*    <button onClick={() => props.pickFn(-1)} className={"value-button value-button-orange"}>*/}
-            {/*        <XMarkIcon className={"w-5"}/>*/}
-            {/*    </button>*/}
-            {/*</div>*/}
         </div>
     )
 }

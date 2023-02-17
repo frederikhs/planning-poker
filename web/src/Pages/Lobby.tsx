@@ -14,15 +14,11 @@ const fibNumbers = [0, 1, 3, 5, 8, 13, 21]
 
 export default function Lobby() {
     let {lobby_id} = useParams()
-
     const [registered, setRegistered] = useState<boolean>(false)
     const [ws, setWs] = useState<WebSocket | null>(null)
-
     const [thisClient, setThisClient] = useState<Client | null>(null)
     const [clients, setClients] = useState<Client[]>([])
-
     const [valuesVisible, setValuesVisible] = useState<boolean>(false)
-    const [pickedValue, setPickedValue] = useState<number | null>(null)
 
     useEffect(() => {
         fetch(api_host + "/register", {
@@ -179,7 +175,7 @@ export default function Lobby() {
     }
 
     if (thisClient == null) {
-        return <p>{api_host}</p>
+        return <p className={"text-red-500"}>Seems like the api is not working :(</p>
     }
 
     return (
