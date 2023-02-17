@@ -1,0 +1,9 @@
+services:
+  web:
+    image: web:prod
+    build:
+      target: production
+  api:
+    image: api:prod
+    build:
+      target: production

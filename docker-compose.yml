@@ -1,13 +1,24 @@
 services:
   web:
+    image: web:dev
     build:
       context: web
       target: development
     stop_grace_period: 1s
-    command:
-      - sleep
-      - infinity
+#    command:
+#      - sleep
+#      - infinity
     ports:
       - "80:80"
     volumes:
       - ./web:/web
+  api:
+    image: api:dev
+    build:
+      context: api
+      target: development
+    stop_grace_period: 1s
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api:/api
