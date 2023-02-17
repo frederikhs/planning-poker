@@ -5,7 +5,6 @@ import ValuePicker from "../Components/ValuePicker";
 import {Client} from "../type";
 import ClientList from "../Components/ClientList";
 import ValueDisplay from "../Components/ValueDisplay";
-import {ArchiveBoxXMarkIcon} from "@heroicons/react/24/solid";
 import Clear from "../Components/Clear";
 
 const api_host = process.env.REACT_APP_API_HOST as string
@@ -160,6 +159,13 @@ export default function Lobby() {
         })
     }
 
+    const updateUsername = (username: string) => {
+        send({
+            event_type: Event.choose_username_event,
+            username: username,
+        })
+    }
+
     const toggleVisibility = () => {
         send({
             event_type: Event.toggle_visibility_request_event
@@ -173,7 +179,7 @@ export default function Lobby() {
     }
 
     if (thisClient == null) {
-        return <p>Loading</p>
+        return <p>{api_host}</p>
     }
 
     return (
@@ -182,9 +188,9 @@ export default function Lobby() {
 
             <ValueDisplay values={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
 
-            <ClientList clients={clients} thisClient={thisClient} valuesVisible={valuesVisible}/>
+            <ClientList clients={clients} thisClient={thisClient} valuesVisible={valuesVisible} setUsernameFn={updateUsername}/>
 
-            <ValuePicker values={fibNumbers} pickFn={pick} pickedValue={pickedValue}/>
+            <ValuePicker values={fibNumbers} pickFn={pick} pickedValue={thisClient.value}/>
         </main>
     )
 }

@@ -7,14 +7,34 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"html"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"time"
 )
+
+func randomEmoji() string {
+	rand.Seed(time.Now().UnixNano())
+	// http://apps.timwhitlock.info/emoji/tables/unicode
+	emoji := [][]int{
+		// Emoticons icons
+		{128513, 128591},
+		// Transport and map symbols
+		{128640, 128704},
+	}
+	r := emoji[rand.Int()%len(emoji)]
+	min := r[0]
+	max := r[1]
+	n := rand.Intn(max-min+1) + min
+	return html.UnescapeString("&#" + strconv.Itoa(n) + ";")
+}
 
 func NewSessionCookie(w http.ResponseWriter, s *hub.State) *string {
 	sId := uuid.New().String()
 	cId := uuid.New().String()
 
-	s.SetSession(sId, cId, namer.GeneratePascalName(sId), -1)
+	s.SetSession(sId, cId, randomEmoji()+" "+namer.GeneratePascalName(sId), -1)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session",
@@ -68,7 +88,7 @@ func Create() http.Handler {
 	})
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost"},
+		AllowedOrigins:   []string{"http://localhost", "http://192.168.1.136"},
 		AllowCredentials: true,
 	})
 

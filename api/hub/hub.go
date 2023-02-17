@@ -115,5 +115,19 @@ func CreateEventHandler(h *Hub, s *State) *EventHandler {
 
 			h.broadcast <- b
 		},
+		ChooseUsernameHandler: func(client *Client, event ChooseUsernameEvent) {
+			client.Session.Username = event.Username
+
+			// store this users' new username
+			s.UpdateSession(client.Session.SessionId, client.Session)
+
+			b, err := json.Marshal(NewSessionChangeEvent(client.Session))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			h.broadcast <- b
+		},
 	}
 }

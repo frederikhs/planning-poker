@@ -47,7 +47,7 @@ func NewLeaveEvent(session *Session) LeaveEvent {
 
 type ChooseUsernameEvent struct {
 	Event
-	Username string `json:"Username"`
+	Username string `json:"username"`
 }
 
 type SessionChangeEvent struct {
@@ -111,7 +111,7 @@ type ToggleVisibilityRequestEvent struct {
 type ClearLobbyEvent = Event
 
 type EventHandler struct {
-	ChooseUsernameHandler               func(event ChooseUsernameEvent)
+	ChooseUsernameHandler               func(client *Client, event ChooseUsernameEvent)
 	JoinEventHandler                    func(event JoinEvent)
 	LeaveEventHandler                   func(event LeaveEvent)
 	PickEventHandler                    func(client *Client, event PickEvent)
@@ -152,7 +152,7 @@ func (eh EventHandler) Handle(client *Client, message []byte) error {
 			return err
 		}
 
-		eh.ChooseUsernameHandler(e)
+		eh.ChooseUsernameHandler(client, e)
 		return nil
 	case PickEventType:
 		var e PickEvent

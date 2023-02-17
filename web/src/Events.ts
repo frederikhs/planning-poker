@@ -6,5 +6,6 @@ export enum Event {
     session_change_event = "session_change_event",
     toggle_visibility_event = "toggle_visibility_event",
     toggle_visibility_request_event = "toggle_visibility_request_event",
-    clear_lobby_event = "clear_lobby_event"
+    clear_lobby_event = "clear_lobby_event",
+    choose_username_event = "choose_username_event"
 }
