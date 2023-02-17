@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"github.com/frederikhs/namer"
 	"github.com/frederikhs/planning-poker/hub"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -12,7 +13,8 @@ import (
 func NewSessionCookie(w http.ResponseWriter, s *hub.State) *string {
 	sId := uuid.New().String()
 	cId := uuid.New().String()
-	s.SetSession(sId, cId, "new-user", -1)
+
+	s.SetSession(sId, cId, namer.GeneratePascalName(sId), -1)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session",
@@ -61,7 +63,7 @@ func Create() http.Handler {
 		w.Write(b)
 	})
 
-	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/ws/{lobby_id}", func(w http.ResponseWriter, r *http.Request) {
 		hub.ServeWs(s, w, r)
 	})
 

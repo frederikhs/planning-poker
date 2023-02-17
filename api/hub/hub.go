@@ -22,14 +22,17 @@ type Hub struct {
 	unregister chan *Client
 
 	eventHandler *EventHandler
+
+	valuesVisible bool
 }
 
 func NewHub(s *State) *Hub {
 	h := &Hub{
-		broadcast:  make(chan []byte),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		broadcast:     make(chan []byte),
+		register:      make(chan *Client),
+		unregister:    make(chan *Client),
+		clients:       make(map[*Client]bool),
+		valuesVisible: false,
 	}
 
 	h.eventHandler = CreateEventHandler(h, s)
@@ -62,7 +65,17 @@ func (h *Hub) Run() {
 
 func CreateEventHandler(h *Hub, s *State) *EventHandler {
 	return &EventHandler{
-		//ChooseUsernameHandler:  nil,
+		ToggleVisibilityRequestEventHandler: func(event ToggleVisibilityRequestEvent) {
+			h.valuesVisible = !h.valuesVisible
+
+			b, err := json.Marshal(NewToggleVisibilityEvent(h.valuesVisible))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			h.broadcast <- b
+		},
 		PickEventHandler: func(client *Client, event PickEvent) {
 			if !IsValidValue(event.Value) {
 				log.Println(client.Session.ClientId + " picked illegal value " + strconv.Itoa(event.Value))

@@ -6,14 +6,15 @@ import (
 )
 
 const (
-	JoinEventType             = "join_event"
-	LeaveEventType            = "leave_event"
-	ChooseUsernameEventType   = "choose_username_event"
-	PickEventType             = "pick_event"
-	SessionChangeEventType    = "session_change_event"
-	WelcomeEventType          = "welcome_event"
-	ClearLobbyEventType       = "clear_lobby_event"
-	ToggleVisibilityEventType = "toggle_visibility_event"
+	JoinEventType                    = "join_event"
+	LeaveEventType                   = "leave_event"
+	ChooseUsernameEventType          = "choose_username_event"
+	PickEventType                    = "pick_event"
+	SessionChangeEventType           = "session_change_event"
+	WelcomeEventType                 = "welcome_event"
+	ClearLobbyEventType              = "clear_lobby_event"
+	ToggleVisibilityRequestEventType = "toggle_visibility_request_event"
+	ToggleVisibilityEventType        = "toggle_visibility_event"
 )
 
 type Event struct {
@@ -70,13 +71,15 @@ type WelcomeEvent struct {
 	Event
 	Session  *Session   `json:"session"`
 	Sessions []*Session `json:"sessions"`
+	Visible  bool       `json:"visible"`
 }
 
-func NewWelcomeEvent(session *Session, sessions []*Session) WelcomeEvent {
+func NewWelcomeEvent(session *Session, sessions []*Session, visible bool) WelcomeEvent {
 	return WelcomeEvent{
 		Event:    Event{EventType: WelcomeEventType},
 		Session:  session,
 		Sessions: sessions,
+		Visible:  visible,
 	}
 }
 
@@ -86,7 +89,7 @@ func NewWelcomeEventFromHub(hub *Hub, session *Session) WelcomeEvent {
 		sessions = append(sessions, someClient.Session)
 	}
 
-	return NewWelcomeEvent(session, sessions)
+	return NewWelcomeEvent(session, sessions, hub.valuesVisible)
 }
 
 type ToggleVisibilityEvent struct {
@@ -94,15 +97,26 @@ type ToggleVisibilityEvent struct {
 	Visible bool `json:"visible"`
 }
 
+func NewToggleVisibilityEvent(visible bool) ToggleVisibilityEvent {
+	return ToggleVisibilityEvent{
+		Event:   Event{EventType: ToggleVisibilityEventType},
+		Visible: visible,
+	}
+}
+
+type ToggleVisibilityRequestEvent struct {
+	Event
+}
+
 type ClearLobbyEvent = Event
 
 type EventHandler struct {
-	ChooseUsernameHandler  func(event ChooseUsernameEvent)
-	JoinEventHandler       func(event JoinEvent)
-	LeaveEventHandler      func(event LeaveEvent)
-	PickEventHandler       func(client *Client, event PickEvent)
-	ClearLobbyEventHandler func(event ClearLobbyEvent)
-	VisibilityEventHandler func(event ToggleVisibilityEvent)
+	ChooseUsernameHandler               func(event ChooseUsernameEvent)
+	JoinEventHandler                    func(event JoinEvent)
+	LeaveEventHandler                   func(event LeaveEvent)
+	PickEventHandler                    func(client *Client, event PickEvent)
+	ClearLobbyEventHandler              func(event ClearLobbyEvent)
+	ToggleVisibilityRequestEventHandler func(event ToggleVisibilityRequestEvent)
 }
 
 func (eh EventHandler) Handle(client *Client, message []byte) error {
@@ -158,15 +172,15 @@ func (eh EventHandler) Handle(client *Client, message []byte) error {
 	//
 	//	eh.ClearLobbyEventHandler(e)
 	//	return nil
-	//case ToggleVisibilityEventType:
-	//	var e ToggleVisibilityEvent
-	//	err := json.Unmarshal(message, &e)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	eh.VisibilityEventHandler(e)
-	//	return nil
+	case ToggleVisibilityRequestEventType:
+		var e ToggleVisibilityRequestEvent
+		err := json.Unmarshal(message, &e)
+		if err != nil {
+			return err
+		}
+
+		eh.ToggleVisibilityRequestEventHandler(e)
+		return nil
 	default:
 		return errors.New("cannot handle event type:" + e.EventType)
 	}

@@ -6,6 +6,8 @@ package hub
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
@@ -135,6 +137,14 @@ func (c *Client) writePump() {
 
 // ServeWs handles websocket requests from the peer.
 func ServeWs(s *State, w http.ResponseWriter, r *http.Request) {
+	routeParams := mux.Vars(r)
+	lobbyId, err := uuid.Parse(routeParams["lobby_id"])
+	if err != nil {
+		log.Printf("Not creating hub: %s\n", routeParams["name"])
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	cookie, err := r.Cookie("session")
 	if err != nil {
 		log.Println(err)
@@ -147,7 +157,7 @@ func ServeWs(s *State, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hub := s.GetOrCreateHub("test-hub")
+	hub := s.GetOrCreateHub(lobbyId.String())
 
 	for someClient := range hub.clients {
 		// a client in this hub already exists
