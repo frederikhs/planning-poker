@@ -5,9 +5,6 @@ services:
       context: web
       target: development
     stop_grace_period: 1s
-#    command:
-#      - sleep
-#      - infinity
     ports:
       - "80:80"
     volumes:

@@ -42,7 +42,7 @@ export default function Home() {
                 <div className="mx-auto max-w-3xl pt-20 pb-32 sm:pt-48 sm:pb-40">
                     <div>
                         <div>
-                            <h1 className="text-4xl font-bold tracking-tight sm:text-center sm:text-6xl">Planning
+                            <h1 className="text-4xl font-bold tracking-tight text-center sm:text-6xl">Planning
                                 Poker</h1>
                             <p className="mt-6 muted-text text-center">
                                 Join or create a room and play planning poker in realtime.
@@ -80,6 +80,9 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div className={"font-medium text-center text-gray-400"}>
+                Created by <a target={"_blank"} href="https://github.com/frederikhs" className="hover:underline">frederikhs</a>
             </div>
         </main>
     </div>

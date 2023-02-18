@@ -20,7 +20,8 @@ export default function ClientList(props: { clients: Client[], thisClient: Clien
             <DisplayClient client={props.thisClient} setUsernameFn={props.setUsernameFn} thisClient={true} valuesVisible={props.valuesVisible}/>
 
             {sortedClients.map((client, index) => {
-                return <DisplayClient key={index} client={client} setUsernameFn={() => {}} thisClient={false} valuesVisible={props.valuesVisible}/>
+                return <DisplayClient key={index} client={client} setUsernameFn={() => {
+                }} thisClient={false} valuesVisible={props.valuesVisible}/>
             })}
         </div>
     )
@@ -33,12 +34,13 @@ function DisplayClient(props: { client: Client, setUsernameFn: (v: string) => vo
         <div className={`flex justify-between shadow-lg text-white ${props.thisClient ? 'bg-green-600' : 'bg-gray-600'} rounded-md text-3xl px-4 py-2`}>
 
             {props.thisClient && <input
-                className={"bg-transparent text-white focus:outline-none w-80"}
+                className={"bg-transparent block text-white focus:outline-none w-60"}
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 onKeyUp={() => props.setUsernameFn(username)}
-            />}
+            />
+            }
 
             {!props.thisClient && <p>{props.client.username}</p>}
 
