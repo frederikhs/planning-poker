@@ -68,7 +68,6 @@ export default function Home() {
                                 </button>
                             </div>
                             <div className="mt-4 sm:flex block gap-x-4 sm:justify-center flex-wrap items-center">
-                                <span className="sm:hidden muted-text">Or create a new lobby</span>
                                 <span className="hidden sm:block muted-text">Or</span>
                                 <button
                                     onClick={() => createLobby()}

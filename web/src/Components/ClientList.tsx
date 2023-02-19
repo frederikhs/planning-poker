@@ -34,10 +34,8 @@ export default function ClientList(props: { clients: Client[], thisClient: Clien
                 }} thisClient={false} valuesVisible={props.valuesVisible}/>
             })}
 
-            {((nonViewerClients.length === 0 && props.thisClient.viewer) || props.clients.length === 0) && <p className={"text-center"}>
-                Seems like there no one here to play. Invite others by sending them the link
-                <br/>
-                <span className={"font-bold"}>{window.location.href}</span>
+            {((nonViewerClients.length === 0 && props.thisClient.viewer) || props.clients.length === 0) && <p className={"text-center py-4"}>
+                Seems like there no one here to play. Invite others by sending them the link.
             </p>}
         </div>
     )
