@@ -7,6 +7,7 @@ import ClientList from "../Components/ClientList";
 import ValueDisplay from "../Components/ValueDisplay";
 import Clear from "../Components/Clear";
 import ViewerToggle from "../Components/ViewerToggle";
+import Error from "../Components/Error";
 
 const api_host = process.env.REACT_APP_API_HOST as string
 const ws_api_host = process.env.REACT_APP_WS_API_HOST as string
@@ -35,14 +36,8 @@ export default function Lobby() {
         })
     }, [])
 
-    useEffect(() => {
-        if (!registered) {
-            console.log("not registered yet")
-            return
-        }
-
-        const websocket = new WebSocket(ws_api_host + "/ws/" + lobby_id)
-        setWs(websocket)
+    const wsConnect = () => {
+        const websocket = new WebSocket(`${ws_api_host}/ws/${lobby_id}`)
 
         websocket.onopen = () => {
             console.log('connected')
@@ -60,7 +55,20 @@ export default function Lobby() {
             setThisClient(null)
         }
 
+        return websocket
+    }
+
+    useEffect(() => {
+        if (!registered) {
+            console.log("not registered yet")
+            return
+        }
+
+        const websocket = wsConnect()
+        setWs(websocket)
+
         return () => {
+            setWs(null)
             websocket.close()
         }
     }, [registered, lobby_id])
@@ -193,7 +201,7 @@ export default function Lobby() {
     }
 
     if (thisClient == null) {
-        return <p className={"text-red-500"}>Seems like the api is not working :(</p>
+        return <Error/>
     }
 
     return (
