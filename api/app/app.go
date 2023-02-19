@@ -96,7 +96,7 @@ func Create() http.Handler {
 	})
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost", "http://192.168.1.136", "http://192.168.1.130", "https://whitebox.hrgn.dk:30090"},
+		AllowedOrigins:   []string{"http://localhost", "http://192.168.1.136", "http://192.168.1.130", "https://pp.hrgn.dk"},
 		AllowCredentials: true,
 	})
 
