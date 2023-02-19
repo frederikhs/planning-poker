@@ -204,7 +204,7 @@ export default function Lobby() {
         <main>
             <div className={"flex justify-between sm:justify-start m-4"}>
                 <GoToLobbyToggle/>
-                {(!thisClient.viewer && !valuesVisible) && <ClearToggle clearFn={clearValues}/>}
+                {(!thisClient.viewer && valuesVisible) && <ClearToggle clearFn={clearValues}/>}
                 <ViewerToggle toggleFn={toggleViewer} active={thisClient.viewer}/>
             </div>
 
