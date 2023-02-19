@@ -15,6 +15,7 @@ const (
 	ClearLobbyEventType              = "clear_lobby_event"
 	ToggleVisibilityRequestEventType = "toggle_visibility_request_event"
 	ToggleVisibilityEventType        = "toggle_visibility_event"
+	ToggleViewerRequestEventType     = "toggle_viewer_request_event"
 )
 
 type Event struct {
@@ -110,13 +111,17 @@ type ToggleVisibilityRequestEvent struct {
 
 type ClearLobbyEvent = Event
 
+type ToggleViewerRequestEvent struct {
+	Event
+	Viewer bool `json:"viewer"`
+}
+
 type EventHandler struct {
 	ChooseUsernameHandler               func(client *Client, event ChooseUsernameEvent)
-	JoinEventHandler                    func(event JoinEvent)
-	LeaveEventHandler                   func(event LeaveEvent)
 	PickEventHandler                    func(client *Client, event PickEvent)
 	ClearLobbyEventHandler              func(event ClearLobbyEvent)
 	ToggleVisibilityRequestEventHandler func(event ToggleVisibilityRequestEvent)
+	ToggleViewerRequestEventHandler     func(client *Client, event ToggleViewerRequestEvent)
 }
 
 func (eh EventHandler) Handle(client *Client, message []byte) error {
@@ -127,24 +132,6 @@ func (eh EventHandler) Handle(client *Client, message []byte) error {
 	}
 
 	switch e.EventType {
-	//case JoinEventType:
-	//	var e JoinEvent
-	//	err := json.Unmarshal(message, &e)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	eh.JoinEventHandler(e)
-	//	return nil
-	//case LeaveEventType:
-	//	var e LeaveEvent
-	//	err := json.Unmarshal(message, &e)
-	//	if err != nil {
-	//		return err
-	//	}
-	//
-	//	eh.LeaveEventHandler(e)
-	//	return nil
 	case ChooseUsernameEventType:
 		var e ChooseUsernameEvent
 		err := json.Unmarshal(message, &e)
@@ -180,6 +167,15 @@ func (eh EventHandler) Handle(client *Client, message []byte) error {
 		}
 
 		eh.ToggleVisibilityRequestEventHandler(e)
+		return nil
+	case ToggleViewerRequestEventType:
+		var e ToggleViewerRequestEvent
+		err := json.Unmarshal(message, &e)
+		if err != nil {
+			return err
+		}
+
+		eh.ToggleViewerRequestEventHandler(client, e)
 		return nil
 	default:
 		return errors.New("cannot handle event type:" + e.EventType)

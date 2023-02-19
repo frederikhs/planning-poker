@@ -129,5 +129,18 @@ func CreateEventHandler(h *Hub, s *State) *EventHandler {
 
 			h.broadcast <- b
 		},
+		ToggleViewerRequestEventHandler: func(client *Client, event ToggleViewerRequestEvent) {
+			client.Session.Viewer = event.Viewer
+
+			s.UpdateSession(client.Session.SessionId, client.Session)
+
+			b, err := json.Marshal(NewSessionChangeEvent(client.Session))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			h.broadcast <- b
+		},
 	}
 }

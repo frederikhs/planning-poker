@@ -6,6 +6,7 @@ import {Client} from "../type";
 import ClientList from "../Components/ClientList";
 import ValueDisplay from "../Components/ValueDisplay";
 import Clear from "../Components/Clear";
+import ViewerToggle from "../Components/ViewerToggle";
 
 const api_host = process.env.REACT_APP_API_HOST as string
 const ws_api_host = process.env.REACT_APP_WS_API_HOST as string
@@ -62,7 +63,7 @@ export default function Lobby() {
         return () => {
             websocket.close()
         }
-    }, [registered])
+    }, [registered, lobby_id])
 
     if (ws !== null) {
         ws.onmessage = (event) => {
@@ -131,12 +132,18 @@ export default function Lobby() {
             return [-1]
         }
 
-        return [thisClient.value, ...clients.map((value) => value.value)]
+        const otherClients = clients.filter((client) => !client.viewer).map((value) => value.value)
+
+        if (thisClient.viewer) {
+            return otherClients
+        } else {
+            return [thisClient.value, ...otherClients]
+        }
     }, [clients, thisClient])
 
     const send = (object: Object) => {
         if (ws === null) {
-            throw "no websocket connection"
+            return
         }
 
         console.log(object);
@@ -145,7 +152,7 @@ export default function Lobby() {
     }
 
     const pick = (value: number) => {
-        if (value === thisClient?.value) {
+        if (thisClient === null) {
             return
         }
 
@@ -174,19 +181,32 @@ export default function Lobby() {
         })
     }
 
+    const toggleViewer = () => {
+        if (thisClient === null) {
+            return
+        }
+
+        send({
+            event_type: Event.toggle_viewer_request_event,
+            viewer: !thisClient.viewer,
+        })
+    }
+
     if (thisClient == null) {
         return <p className={"text-red-500"}>Seems like the api is not working :(</p>
     }
 
     return (
         <main>
-            <Clear enable={valuesVisible} clearFn={clearValues}/>
+            <ViewerToggle toggleFn={toggleViewer}/>
+
+            {!thisClient.viewer && <Clear enable={valuesVisible} clearFn={clearValues}/>}
 
             <ValueDisplay values={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
 
             <ClientList clients={clients} thisClient={thisClient} valuesVisible={valuesVisible} setUsernameFn={updateUsername}/>
 
-            <ValuePicker values={fibNumbers} pickFn={pick} pickedValue={thisClient.value}/>
+            {!thisClient.viewer && <ValuePicker values={fibNumbers} pickFn={pick} pickedValue={thisClient.value}/>}
         </main>
     )
 }

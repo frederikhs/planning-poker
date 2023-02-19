@@ -35,7 +35,7 @@ func NewSessionCookie(w http.ResponseWriter, s *hub.State) *string {
 	sId := uuid.New().String()
 	cId := uuid.New().String()
 
-	s.SetSession(sId, cId, randomEmoji()+" "+namer.GeneratePascalName(sId), -1)
+	s.SetSession(sId, cId, randomEmoji()+" "+namer.GeneratePascalName(sId), -1, false)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:  "session",
