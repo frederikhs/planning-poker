@@ -8,6 +8,8 @@ import ValueDisplay from "../Components/ValueDisplay";
 import Clear from "../Components/Clear";
 import ViewerToggle from "../Components/ViewerToggle";
 import Error from "../Components/Error";
+import {TvIcon} from "@heroicons/react/24/outline";
+import {BackspaceIcon, ChevronDoubleLeftIcon} from "@heroicons/react/24/solid";
 
 const api_host = process.env.REACT_APP_API_HOST as string
 const ws_api_host = process.env.REACT_APP_WS_API_HOST as string
@@ -76,7 +78,6 @@ export default function Lobby() {
     if (ws !== null) {
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            console.log(data)
             switch (data.event_type) {
                 case Event.welcome_event:
                     setThisClient(data.session)
@@ -154,8 +155,6 @@ export default function Lobby() {
             return
         }
 
-        console.log(object);
-
         ws.send(JSON.stringify(object))
     }
 
@@ -206,9 +205,13 @@ export default function Lobby() {
 
     return (
         <main>
-            <ViewerToggle toggleFn={toggleViewer}/>
-
-            {!thisClient.viewer && <Clear enable={valuesVisible} clearFn={clearValues}/>}
+            <div className={"flex justify-between m-4"}>
+                <div onClick={() => {}} className={"p-2 rounded-md shadow-lg hover:cursor-pointer"}>
+                    <ChevronDoubleLeftIcon className={"w-8 h-8"}/>
+                </div>
+                {(!thisClient.viewer || !valuesVisible) && <Clear clearFn={clearValues}/>}
+                <ViewerToggle toggleFn={toggleViewer}/>
+            </div>
 
             <ValueDisplay values={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
 
