@@ -1,9 +1,9 @@
 services:
   web:
-    image: web:prod
+    image: registry.hrgn.dk/planning-poker-web-new:${TAG:-prod}
     build:
       target: production
   api:
-    image: api:prod
+    image: registry.hrgn.dk/planning-poker-api-new:${TAG:-prod}
     build:
       target: production
