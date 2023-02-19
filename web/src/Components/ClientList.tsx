@@ -19,16 +19,26 @@ export default function ClientList(props: { clients: Client[], thisClient: Clien
         })
     }, [excludeViewerClients])
 
+    const nonViewerClients = useMemo(() => {
+        return sortedClients.filter((client) => !client.viewer)
+    }, [sortedClients])
+
     return (
         <div className={"p-4 space-y-2"}>
             {!props.thisClient.viewer &&
                 <DisplayClient client={props.thisClient} setUsernameFn={props.setUsernameFn} thisClient={true} valuesVisible={props.valuesVisible}/>
             }
 
-            {sortedClients.filter((client) => !client.viewer).map((client, index) => {
+            {nonViewerClients.map((client, index) => {
                 return <DisplayClient key={index} client={client} setUsernameFn={() => {
                 }} thisClient={false} valuesVisible={props.valuesVisible}/>
             })}
+
+            {((nonViewerClients.length === 0 && props.thisClient.viewer) || props.clients.length === 0) && <p className={"text-center"}>
+                Seems like there no one here to play. Invite others by sending them the link
+                <br/>
+                <span className={"font-bold"}>{window.location.href}</span>
+            </p>}
         </div>
     )
 }
