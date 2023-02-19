@@ -5,11 +5,8 @@ import ValuePicker from "../Components/ValuePicker";
 import {Client} from "../type";
 import ClientList from "../Components/ClientList";
 import ValueDisplay from "../Components/ValueDisplay";
-import Clear from "../Components/Clear";
-import ViewerToggle from "../Components/ViewerToggle";
+import {ClearToggle, GoToLobbyToggle, ViewerToggle} from "../Components/Toggle";
 import Error from "../Components/Error";
-import {TvIcon} from "@heroicons/react/24/outline";
-import {BackspaceIcon, ChevronDoubleLeftIcon} from "@heroicons/react/24/solid";
 
 const api_host = process.env.REACT_APP_API_HOST as string
 const ws_api_host = process.env.REACT_APP_WS_API_HOST as string
@@ -205,12 +202,10 @@ export default function Lobby() {
 
     return (
         <main>
-            <div className={"flex justify-between m-4"}>
-                <div onClick={() => {}} className={"p-2 rounded-md shadow-lg hover:cursor-pointer"}>
-                    <ChevronDoubleLeftIcon className={"w-8 h-8"}/>
-                </div>
-                {(!thisClient.viewer || !valuesVisible) && <Clear clearFn={clearValues}/>}
-                <ViewerToggle toggleFn={toggleViewer}/>
+            <div className={"flex justify-between sm:justify-start m-4"}>
+                <GoToLobbyToggle/>
+                {(!thisClient.viewer && !valuesVisible) && <ClearToggle clearFn={clearValues}/>}
+                <ViewerToggle toggleFn={toggleViewer} active={thisClient.viewer}/>
             </div>
 
             <ValueDisplay values={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
