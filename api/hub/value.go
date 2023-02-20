@@ -1,8 +1,8 @@
 package hub
 
-var valueSet = []int{-1, 0, 1, 2, 3, 5, 8, 13, 21}
+var valueSet = []float64{-1, 0, 0.5, 1, 2, 3, 5, 8, 13, 21}
 
-func IsValidValue(value int) bool {
+func IsValidValue(value float64) bool {
 	for _, v := range valueSet {
 		if v == value {
 			return true

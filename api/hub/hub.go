@@ -2,8 +2,8 @@ package hub
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
-	"strconv"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -78,11 +78,11 @@ func CreateEventHandler(h *Hub, s *State) *EventHandler {
 		},
 		PickEventHandler: func(client *Client, event PickEvent) {
 			if !IsValidValue(event.Value) {
-				log.Println(client.Session.ClientId + " picked illegal value " + strconv.Itoa(event.Value))
+				log.Println(fmt.Sprintf("%s picked illegal value: %f", client.Session.ClientId, event.Value))
 				return
 			}
 
-			log.Println(client.Session.ClientId + " picked " + strconv.Itoa(event.Value))
+			log.Println(fmt.Sprintf("%s picked %f", client.Session.ClientId, event.Value))
 
 			client.Session.Value = event.Value
 

@@ -65,7 +65,7 @@ func NewSessionChangeEvent(session *Session) SessionChangeEvent {
 
 type PickEvent struct {
 	Event
-	Value int `json:"value"`
+	Value float64 `json:"value"`
 }
 
 type WelcomeEvent struct {

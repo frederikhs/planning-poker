@@ -11,7 +11,7 @@ import Error from "../Components/Error";
 const api_host = process.env.REACT_APP_API_HOST as string
 const ws_api_host = process.env.REACT_APP_WS_API_HOST as string
 
-const fibNumbers = [0, 1, 3, 5, 8, 13, 21]
+const fibNumbers = [0, 0.5, 1, 2, 3, 5, 8, 13]
 
 export default function Lobby() {
     let {lobby_id} = useParams()
@@ -201,14 +201,14 @@ export default function Lobby() {
     }
 
     return (
-        <main>
+        <main className={"flex flex-col h-screen"}>
             <div className={"flex justify-between sm:justify-start m-4"}>
                 <GoToLobbyToggle/>
                 {(!thisClient.viewer && valuesVisible) && <ClearToggle clearFn={clearValues}/>}
                 <ViewerToggle toggleFn={toggleViewer} active={thisClient.viewer}/>
             </div>
 
-            <ValueDisplay values={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
+            <ValueDisplay values={fibNumbers} answerValues={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
 
             <ClientList clients={clients} thisClient={thisClient} valuesVisible={valuesVisible} setUsernameFn={updateUsername}/>
 

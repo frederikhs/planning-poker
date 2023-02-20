@@ -24,10 +24,25 @@ export default function ClientList(props: { clients: Client[], thisClient: Clien
     }, [sortedClients])
 
     return (
-        <div className={"p-4 space-y-2"}>
+        <div className={"p-4 space-y-2 flex-grow overflow-y-scroll sm:overflow-auto"}>
             {!props.thisClient.viewer &&
                 <DisplayClient client={props.thisClient} setUsernameFn={props.setUsernameFn} thisClient={true} valuesVisible={props.valuesVisible}/>
             }
+
+            {nonViewerClients.map((client, index) => {
+                return <DisplayClient key={index} client={client} setUsernameFn={() => {
+                }} thisClient={false} valuesVisible={props.valuesVisible}/>
+            })}
+
+            {nonViewerClients.map((client, index) => {
+                return <DisplayClient key={index} client={client} setUsernameFn={() => {
+                }} thisClient={false} valuesVisible={props.valuesVisible}/>
+            })}
+
+            {nonViewerClients.map((client, index) => {
+                return <DisplayClient key={index} client={client} setUsernameFn={() => {
+                }} thisClient={false} valuesVisible={props.valuesVisible}/>
+            })}
 
             {nonViewerClients.map((client, index) => {
                 return <DisplayClient key={index} client={client} setUsernameFn={() => {

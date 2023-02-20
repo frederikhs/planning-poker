@@ -12,11 +12,11 @@ type State struct {
 }
 
 type Session struct {
-	SessionId string `json:"-"`
-	ClientId  string `json:"client_id"`
-	Username  string `json:"username"`
-	Value     int    `json:"value"`
-	Viewer    bool   `json:"viewer"`
+	SessionId string  `json:"-"`
+	ClientId  string  `json:"client_id"`
+	Username  string  `json:"username"`
+	Value     float64 `json:"value"`
+	Viewer    bool    `json:"viewer"`
 }
 
 func NewState() *State {
@@ -66,7 +66,7 @@ func (s *State) GetSessionClientId(sessionId string) *Session {
 	return nil
 }
 
-func (s *State) SetSession(sessionId, userId string, username string, value int, viewer bool) {
+func (s *State) SetSession(sessionId, userId string, username string, value float64, viewer bool) {
 	s.Lock.Lock()
 	defer s.Lock.Unlock()
 
