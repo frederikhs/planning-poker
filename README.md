@@ -13,7 +13,7 @@ https://pp.hrgn.dk
 - no signup or user creation needed
 - set username by clicking on yourself in the green box
 
-![img](img/mobile.png)
+![showcase](img/showcase.gif)
 
 ### Developing
 
