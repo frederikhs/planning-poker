@@ -34,21 +34,6 @@ export default function ClientList(props: { clients: Client[], thisClient: Clien
                 }} thisClient={false} valuesVisible={props.valuesVisible}/>
             })}
 
-            {nonViewerClients.map((client, index) => {
-                return <DisplayClient key={index} client={client} setUsernameFn={() => {
-                }} thisClient={false} valuesVisible={props.valuesVisible}/>
-            })}
-
-            {nonViewerClients.map((client, index) => {
-                return <DisplayClient key={index} client={client} setUsernameFn={() => {
-                }} thisClient={false} valuesVisible={props.valuesVisible}/>
-            })}
-
-            {nonViewerClients.map((client, index) => {
-                return <DisplayClient key={index} client={client} setUsernameFn={() => {
-                }} thisClient={false} valuesVisible={props.valuesVisible}/>
-            })}
-
             {((nonViewerClients.length === 0 && props.thisClient.viewer) || props.clients.length === 0) && <p className={"text-center py-4"}>
                 Seems like there no one here to play. Invite others by sending them the link.
             </p>}
