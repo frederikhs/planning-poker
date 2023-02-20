@@ -9,14 +9,16 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"html"
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
 )
 
+// stolen
 func randomEmoji() string {
-	rand.Seed(time.Now().UnixNano())
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	// http://apps.timwhitlock.info/emoji/tables/unicode
 	emoji := [][]int{
 		// Emoticons icons
@@ -81,14 +83,20 @@ func Create() http.Handler {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		w.Write(b)
+		_, err = w.Write(b)
+		if err != nil {
+			log.Println(err)
+		}
 	})
 
 	r.HandleFunc("/lobby/create", func(w http.ResponseWriter, r *http.Request) {
 		name := uuid.New().String()
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(fmt.Sprintf("{\"lobby_id\": \"%s\"}", name)))
+		_, err := w.Write([]byte(fmt.Sprintf("{\"lobby_id\": \"%s\"}", name)))
+		if err != nil {
+			log.Println(err)
+		}
 	})
 
 	r.HandleFunc("/ws/{lobby_id}", func(w http.ResponseWriter, r *http.Request) {

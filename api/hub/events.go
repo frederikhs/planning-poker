@@ -86,7 +86,7 @@ func NewWelcomeEvent(session *Session, sessions []*Session, visible bool) Welcom
 
 func NewWelcomeEventFromHub(hub *Hub, session *Session) WelcomeEvent {
 	sessions := []*Session{}
-	for someClient, _ := range hub.clients {
+	for someClient := range hub.clients {
 		sessions = append(sessions, someClient.Session)
 	}
 

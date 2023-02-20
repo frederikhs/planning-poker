@@ -2,7 +2,6 @@ package hub
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 )
 
@@ -78,11 +77,11 @@ func CreateEventHandler(h *Hub, s *State) *EventHandler {
 		},
 		PickEventHandler: func(client *Client, event PickEvent) {
 			if !IsValidValue(event.Value) {
-				log.Println(fmt.Sprintf("%s picked illegal value: %f", client.Session.ClientId, event.Value))
+				log.Printf("%s picked illegal value: %f\n", client.Session.ClientId, event.Value)
 				return
 			}
 
-			log.Println(fmt.Sprintf("%s picked %f", client.Session.ClientId, event.Value))
+			log.Printf("%s picked %f", client.Session.ClientId, event.Value)
 
 			client.Session.Value = event.Value
 
