@@ -203,7 +203,7 @@ export default function Lobby (): JSX.Element {
   }
 
   return (
-        <main className={'flex flex-col h-screen'}>
+        <main className={'flex flex-col h-max'}>
             <div className={'flex justify-between sm:justify-start m-4'}>
                 <GoToLobbyToggle/>
                 {(!thisClient.viewer && valuesVisible) && <ClearToggle clearFn={clearValues}/>}
