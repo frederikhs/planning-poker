@@ -12,7 +12,7 @@ const router = createBrowserRouter([
         element: <Home/>,
     },
     {
-        path: "lobby/:lobby_id",
+        path: "lobby/:lobbyId",
         element: <Lobby/>,
     },
     {
