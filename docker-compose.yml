@@ -1,6 +1,5 @@
 services:
   web:
-    image: registry.hrgn.dk/planning-poker-web:dev
     build:
       context: web
       target: development
@@ -10,7 +9,6 @@ services:
     volumes:
       - ./web:/web
   api:
-    image: registry.hrgn.dk/planning-poker-api:dev
     build:
       context: api
       target: development

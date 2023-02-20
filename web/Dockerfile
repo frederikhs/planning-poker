@@ -2,7 +2,7 @@ FROM node:alpine as development
 USER 1000
 WORKDIR /web
 
-CMD npm run start
+CMD npm install && npm run start
 
 FROM development as intermediate
 USER root
