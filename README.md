@@ -27,3 +27,13 @@ Visit http://localhost
 
 In development, the api container will watch for file changes to .go files and recompile to backend each time a file is changed.
 The web container will also watch for file changes and hot reload components in your browser.
+
+Lint and check for potentional errors with
+
+```shell
+./lint-api.sh
+
+# or
+
+./lint-web.sh
+```
