@@ -2,6 +2,8 @@
 
 Play planning poker with websockets in realtime with minimal ui.
 
+https://pp.hrgn.dk
+
 ### Features
 
 - Join a unique room and vote using the buttons at the bottom of the screen
