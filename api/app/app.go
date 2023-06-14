@@ -12,6 +12,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 )
@@ -103,6 +104,15 @@ func Create() http.Handler {
 
 	r.HandleFunc("/ws/{lobby_id}", func(w http.ResponseWriter, r *http.Request) {
 		hub.ServeWs(s, w, r)
+	})
+
+	r.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+		_, err := w.Write([]byte(fmt.Sprintf("{\"version\": \"%s\"}", os.Getenv("VERSION"))))
+		if err != nil {
+			log.Println(err)
+		}
 	})
 
 	c := cors.New(cors.Options{

@@ -89,6 +89,9 @@ export default function Home (): JSX.Element {
                 Created by <a target="_blank" rel="noreferrer" href="https://github.com/frederikhs" className="hover:underline">frederikhs</a>.
                 View on <a target="_blank" rel="noreferrer" href="https://github.com/frederikhs/planning-poker" className="hover:underline">GitHub</a>
             </div>
+            <div className={'font-medium text-center text-gray-200'}>
+                {process.env.REACT_APP_VERSION}
+            </div>
         </main>
     </div>
 }

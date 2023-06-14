@@ -8,6 +8,8 @@ services:
       - "80:80"
     volumes:
       - ./web:/web
+    environment:
+      REACT_APP_VERSION: "development"
   api:
     build:
       context: api
@@ -17,3 +19,5 @@ services:
       - "3000:3000"
     volumes:
       - ./api:/api
+    environment:
+      VERSION: "development"
