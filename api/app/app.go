@@ -40,9 +40,11 @@ func NewSessionCookie(w http.ResponseWriter, s *hub.State) *string {
 	s.SetSession(sId, cId, randomEmoji()+" "+namer.GeneratePascalName(sId), -1, false)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:  "session",
-		Value: sId,
-		Path:  "/",
+		Name:     "session",
+		Value:    sId,
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   60 * 60 * 24 * 365, // 1 year
 	})
 
 	return &cId
