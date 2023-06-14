@@ -135,19 +135,24 @@ export default function Lobby (): JSX.Element {
     }))
   }
 
+  // this memo is here because there is a leak if client join and we will then filter out the clients with duplicate client ids
+  const noDuplicateClients = useMemo(() => {
+    return clients.filter((value, index, self) => self.map((c) => c.client_id).indexOf(value.client_id) === index)
+  }, [clients])
+
   const answerValues = useMemo(() => {
     if (thisClient === null) {
       return [-1]
     }
 
-    const otherClients = clients.filter((client) => !client.viewer).map((value) => value.value)
+    const otherClients = noDuplicateClients.filter((client) => !client.viewer).map((value) => value.value)
 
     if (thisClient.viewer) {
       return otherClients
     } else {
       return [thisClient.value, ...otherClients]
     }
-  }, [clients, thisClient])
+  }, [noDuplicateClients, thisClient])
 
   const send = (object: any): void => {
     if (ws === null) {
@@ -212,7 +217,7 @@ export default function Lobby (): JSX.Element {
 
             <ValueDisplay values={fibNumbers} answerValues={answerValues} valuesVisible={valuesVisible} toggleVisibilityFn={toggleVisibility}/>
 
-            <ClientList clients={clients} thisClient={thisClient} valuesVisible={valuesVisible} setUsernameFn={updateUsername}/>
+            <ClientList clients={noDuplicateClients} thisClient={thisClient} valuesVisible={valuesVisible} setUsernameFn={updateUsername}/>
 
             {!thisClient.viewer && <ValuePicker values={fibNumbers} pickFn={pick} pickedValue={thisClient.value}/>}
         </main>

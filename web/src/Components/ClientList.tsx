@@ -3,13 +3,8 @@ import { CheckIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/solid'
 import React, { useMemo, useState } from 'react'
 
 export default function ClientList (props: { clients: Client[], thisClient: Client, setUsernameFn: (v: string) => void, valuesVisible: boolean }): JSX.Element {
-  // this memo is here because there is a leak if client join and we will then filter out the clients with duplicate client ids
-  const noDuplicateClients = useMemo(() => {
-    return props.clients.filter((value, index, self) => self.map((c) => c.client_id).indexOf(value.client_id) === index)
-  }, [props.clients])
-
   const sortedClients = useMemo(() => {
-    return noDuplicateClients.sort((a, b) => {
+    return props.clients.sort((a, b) => {
       if (a.client_id > b.client_id) {
         return -1
       } else if (a.client_id < b.client_id) {
@@ -18,7 +13,7 @@ export default function ClientList (props: { clients: Client[], thisClient: Clie
         return 0
       }
     })
-  }, [noDuplicateClients])
+  }, [props.clients])
 
   const nonViewerClients = useMemo(() => {
     return sortedClients.filter((client) => !client.viewer)
