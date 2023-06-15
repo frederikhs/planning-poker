@@ -10,6 +10,9 @@ COPY --chown=node:node package*.json .
 RUN npm ci
 
 COPY --chown=node:node . .
+
+ARG VERSION
+ENV REACT_APP_VERSION=$VERSION
 RUN npm run build
 
 FROM nginx:alpine as production

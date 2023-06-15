@@ -25,6 +25,9 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o /app
 
 FROM scratch as production
+ARG VERSION
+ENV VERSION=$VERSION
+
 # copy ca-certificates
 COPY --from=intermediate /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 

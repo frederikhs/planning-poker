@@ -3,7 +3,11 @@ services:
     image: registry.hrgn.dk/planning-poker-web:${TAG:-prod}
     build:
       target: production
+      args:
+        VERSION: ${TAG:-prod}
   api:
     image: registry.hrgn.dk/planning-poker-api:${TAG:-prod}
     build:
       target: production
+      args:
+        VERSION: ${TAG:-prod}
