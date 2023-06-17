@@ -1,0 +1,15 @@
+services:
+  web:
+    image: planning-poker-web:test
+    build:
+      context: web
+      target: build
+    environment:
+      REACT_APP_VERSION: "test"
+  api:
+    image: planning-poker-api:test
+    build:
+      context: api
+      target: build
+    environment:
+      VERSION: "test"

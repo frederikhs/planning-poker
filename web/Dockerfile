@@ -4,7 +4,7 @@ WORKDIR /web
 
 CMD npm install && npm run start
 
-FROM development as intermediate
+FROM development as build
 USER root
 COPY --chown=node:node package*.json .
 RUN npm ci
@@ -17,4 +17,4 @@ RUN npm run build
 
 FROM nginx:alpine as production
 COPY server.conf /etc/nginx/conf.d/nginx.conf
-COPY --from=intermediate --chown=nginx:nginx /web/build /usr/share/nginx/html
+COPY --from=build --chown=nginx:nginx /web/build /usr/share/nginx/html

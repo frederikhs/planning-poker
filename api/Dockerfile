@@ -7,7 +7,7 @@ RUN go install github.com/cespare/reflex@latest
 COPY reflex.conf /usr/local/etc/
 CMD ["reflex", "-d", "none", "-c", "/usr/local/etc/reflex.conf"]
 
-FROM development as intermediate
+FROM development as build
 # add ca-certificates for scratch images to use
 RUN apk add --update --no-cache ca-certificates tzdata build-base
 
@@ -29,14 +29,14 @@ ARG VERSION
 ENV VERSION=$VERSION
 
 # copy ca-certificates
-COPY --from=intermediate /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # timezone
-COPY --from=intermediate /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
 ENV TZ=Europe/Copenhagen
 
 # copy self-contained binary
-COPY --from=intermediate /app /app
+COPY --from=build /app /app
 
 # run binary
 ENTRYPOINT ["/app"]
