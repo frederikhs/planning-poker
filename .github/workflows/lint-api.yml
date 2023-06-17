@@ -1,0 +1,11 @@
+name: Lint API
+on: push
+
+jobs:
+  lint-api:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./lint-api.sh
