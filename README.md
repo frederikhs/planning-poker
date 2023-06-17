@@ -1,5 +1,8 @@
 # 🃏 Planning Poker
 
+[![Lint API](https://github.com/frederikhs/planning-poker/actions/workflows/lint-api.yml/badge.svg?branch=main)](https://github.com/frederikhs/planning-poker/actions/workflows/lint-api.yml)
+[![Lint Web](https://github.com/frederikhs/planning-poker/actions/workflows/lint-web.yml/badge.svg?branch=main)](https://github.com/frederikhs/planning-poker/actions/workflows/lint-web.yml)
+
 Play planning poker with websockets in realtime with minimal ui.
 
 https://pp.hrgn.dk
